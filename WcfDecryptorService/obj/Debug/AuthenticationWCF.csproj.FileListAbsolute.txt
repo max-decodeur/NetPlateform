@@ -1,0 +1,6 @@
+C:\Users\Maximilien\source\repos\AuthenticationWCF\AuthenticationWCF\bin\AuthenticationWCF.dll.config
+C:\Users\Maximilien\source\repos\AuthenticationWCF\AuthenticationWCF\bin\AuthenticationWCF.dll
+C:\Users\Maximilien\source\repos\AuthenticationWCF\AuthenticationWCF\bin\AuthenticationWCF.pdb
+C:\Users\Maximilien\source\repos\AuthenticationWCF\AuthenticationWCF\obj\Debug\AuthenticationWCF.csproj.CoreCompileInputs.cache
+C:\Users\Maximilien\source\repos\AuthenticationWCF\AuthenticationWCF\obj\Debug\AuthenticationWCF.dll
+C:\Users\Maximilien\source\repos\AuthenticationWCF\AuthenticationWCF\obj\Debug\AuthenticationWCF.pdb
