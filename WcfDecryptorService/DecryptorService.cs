@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.ServiceModel.Web;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
-using System.Diagnostics;
+using System.Threading.Tasks;
 using WcfDecryptorService.Models;
 
 namespace WcfDecryptorService
@@ -15,7 +13,7 @@ namespace WcfDecryptorService
     // REMARQUE : pour lancer le client test WCF afin de tester ce service, sélectionnez Service1.svc ou Service1.svc.cs dans l'Explorateur de solutions et démarrez le débogage.
     public class DecryptorService : IDecryptorService
     {
-        private string tokenApp = "TokenComingFromNoWhere";
+        private string tokenApp = "93b7262b62089fae82bff40bf5fe0180650f4e33d0a114bccf72ab6301465473";
 
         public string m_service(string msg)
         {
@@ -27,8 +25,7 @@ namespace WcfDecryptorService
             if (message.operationName == "login")
             {
                 message.statusOp = true;
-                // TODO: token generator
-                message.tokenUser = "RandomlyGeneratedUserToken";
+                message.tokenUser = this.generateToken(message.data.Cast<string>().ToArray());
 
                 // TODO: log the connection
             }
@@ -37,7 +34,8 @@ namespace WcfDecryptorService
                 message.statusOp = true;
 
                 Decryption decryption = new Decryption(message.data);
-                decryption.start();
+                PDF pdf = decryption.start();
+                if (pdf != null) message.data = new string[] { pdf.serialize() };
             }
             else
             {
@@ -46,18 +44,32 @@ namespace WcfDecryptorService
             return message.serialize();
         }
 
+        private string generateToken(string[] args)
+        {
+            SHA256 chat = SHA256.Create();
+            byte[] hash = chat.ComputeHash(Encoding.UTF8.GetBytes(String.Concat(args)));
+
+            string token = "";
+            foreach (byte x in hash)
+            {
+                token += String.Format("{0:x2}", x);
+            }
+
+            return token;
+        }
+
         public string java(string msg)
         {
             // WCF
             try
             {
-                ValidatorProxy.ValidatorEndpointClient service = new ValidatorProxy.ValidatorEndpointClient();
-                string message = "{ \"info\":\"\",\"data\":[\"{ \"filename\":\"nativelog.txt\",\"path\":\"C:\\Users\\KLEIN Aurélien\\Desktop\\nativelog.txt\",\"content\":\"Je suis le contenu du fichier bla bla bla...\"}\"],\"operationName\":\"decrypt\",\"appVersion\":\"0.1\",\"operationVersion\":\"0.1\",\"statusOp\":null,\"tokenApp\":\"token\",\"tokenUser\":\"\"}";
-                service.validatorOperation(message);
-                //string returnValue = service.java("{ name:John, age:31, city:New York}");
-                Console.WriteLine("logged");
-                //Console.WriteLine(returnValue);
-                Console.ReadLine();
+                //ValidatorProxy.ValidatorEndpointClient service = new ValidatorProxy.ValidatorEndpointClient();
+                //string message = "{ \"info\":\"\",\"data\":[\"{ \"filename\":\"nativelog.txt\",\"path\":\"C:\\Users\\KLEIN Aurélien\\Desktop\\nativelog.txt\",\"content\":\"Je suis le contenu du fichier bla bla bla...\"}\"],\"operationName\":\"decrypt\",\"appVersion\":\"0.1\",\"operationVersion\":\"0.1\",\"statusOp\":null,\"tokenApp\":\"token\",\"tokenUser\":\"\"}";
+                //service.validatorOperation(message);
+                ////string returnValue = service.java("{ name:John, age:31, city:New York}");
+                //Console.WriteLine("logged");
+                ////Console.WriteLine(returnValue);
+                //Console.ReadLine();
             }
             catch
             {
@@ -105,5 +117,6 @@ namespace WcfDecryptorService
             { get { return true; } }
             #endregion
         }
+
     }
 }
