@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definitions xmlns:wsp="http://www.w3.org/ns/ws-policy" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:tns="http://facade.validator.cesi.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsp1_2="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" name="ValidatorService" targetNamespace="http://facade.validator.cesi.com/" xmlns="http://schemas.xmlsoap.org/wsdl/">
+  <types>
+    <xsd:schema>
+      <xsd:import schemaLocation="http://192.168.137.132:9080/ValidatorService/ValidatorServiceEndpointBean?xsd=1" namespace="http://facade.validator.cesi.com/" />
+    </xsd:schema>
+  </types>
+  <message name="validatorOperation">
+    <part name="parameters" element="tns:validatorOperation" />
+  </message>
+  <message name="validatorOperationResponse">
+    <part name="parameters" element="tns:validatorOperationResponse" />
+  </message>
+  <portType name="ValidatorEndpoint">
+    <operation name="validatorOperation">
+      <input wsam:Action="http://facade.validator.cesi.com/ValidatorEndpoint/validatorOperationRequest" message="tns:validatorOperation" />
+      <output wsam:Action="http://facade.validator.cesi.com/ValidatorEndpoint/validatorOperationResponse" message="tns:validatorOperationResponse" />
+    </operation>
+  </portType>
+  <binding name="ValidatorPortBinding" type="tns:ValidatorEndpoint">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <operation name="validatorOperation">
+      <soap:operation soapAction="" />
+      <input>
+        <soap:body use="literal" />
+      </input>
+      <output>
+        <soap:body use="literal" />
+      </output>
+    </operation>
+  </binding>
+  <service name="ValidatorService">
+    <port name="ValidatorPort" binding="tns:ValidatorPortBinding">
+      <soap:address location="http://192.168.137.132:9080/ValidatorService/ValidatorServiceEndpointBean" />
+    </port>
+  </service>
+</definitions>
