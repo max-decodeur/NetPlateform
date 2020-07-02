@@ -1,0 +1,7 @@
+C:\Users\Maximilien\source\repos\NetPlateform\WcfDecryptorService\bin\AuthenticationWCF.dll.config
+C:\Users\Maximilien\source\repos\NetPlateform\WcfDecryptorService\bin\AuthenticationWCF.dll
+C:\Users\Maximilien\source\repos\NetPlateform\WcfDecryptorService\bin\AuthenticationWCF.pdb
+C:\Users\Maximilien\source\repos\NetPlateform\WcfDecryptorService\obj\Debug\WcfDecryptorService.csproj.CoreCompileInputs.cache
+C:\Users\Maximilien\source\repos\NetPlateform\WcfDecryptorService\obj\Debug\AuthenticationWCF.dll
+C:\Users\Maximilien\source\repos\NetPlateform\WcfDecryptorService\obj\Debug\AuthenticationWCF.pdb
+C:\Users\Maximilien\source\repos\NetPlateform\WcfDecryptorService\obj\Debug\WcfDecryptorService.csprojAssemblyReference.cache

@@ -13,7 +13,7 @@ namespace WcfDecryptorService.Models
         public string path;
         public string content;
 
-        private FormattedFile() { }
+        public FormattedFile() { }
 
         public FormattedFile(string path)
         {

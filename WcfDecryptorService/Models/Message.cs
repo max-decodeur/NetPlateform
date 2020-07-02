@@ -17,6 +17,7 @@ namespace WcfDecryptorService.Models
         public string tokenUser { get; set; }
         public string appVersion = "";
         public string operationVersion = "";
+        
 
         //
         // Résumé :

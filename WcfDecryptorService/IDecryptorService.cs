@@ -12,7 +12,6 @@ namespace WcfDecryptorService
     [ServiceContract]
     public interface IDecryptorService
     {
-
         [OperationContract]
         string m_service(string msg);
 

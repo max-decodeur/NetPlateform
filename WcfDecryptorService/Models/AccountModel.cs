@@ -13,7 +13,7 @@ namespace WcfDecryptorService.Models
         {
             listAccounts.Add(new Account { Username = "acc1", Password = "123" });
             listAccounts.Add(new Account { Username = "acc2", Password = "123" });
-            listAccounts.Add(new Account { Username = "acc3", Password = "123" });
+            listAccounts.Add(new Account { Username = "a", Password = "" });
             listAccounts.Add(new Account { Username = "aa", Password = "zz" });
         }
 

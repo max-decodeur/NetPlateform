@@ -12,5 +12,6 @@ namespace WcfDecryptorService.Models
         public string Password { get; set; }
 
         public string UserToken { get; set; }
+
     }
 }

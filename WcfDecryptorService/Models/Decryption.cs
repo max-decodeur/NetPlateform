@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
+using System.Net.Mail;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace WcfDecryptorService.Models
 {
     public class Decryption
     {
-        private int beginning = 65; // 97 => A
-        private int limit = 90; // 122 => Z
+        private int beginning = 65; // 65 => A
+        private int limit = 90; // 90 => Z
         private int[] key;
         private List<FormattedFile> files = new List<FormattedFile>();
 
@@ -24,70 +23,76 @@ namespace WcfDecryptorService.Models
             }
         }
 
-        public void start()
+        public PDF start()
         {
-            foreach(FormattedFile file in this.files)
-            {
-                this.decryptFile(file);
-            }
+            return this.decryptFile(this.files[0]);
         }
 
-        private void decryptFile(FormattedFile file)
+        private PDF decryptFile(FormattedFile file)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            key = new int[4] { beginning - 1, beginning, limit, limit };
+            key = new int[4] { beginning - 1, beginning, beginning, beginning };
+            int nbMaxKeys = (int)Math.Pow((limit - beginning) + 1, key.Length);
 
-            // TODO: Implement a loop on keys
-            while (this.nextKey())
+            var runningTasks = new CountdownEvent(1);
+            int keysUsed = 0;
+
+            // Use ParallelOptions instance to limit to processor
+            ParallelOptions po = new ParallelOptions();
+            po.MaxDegreeOfParallelism = Environment.ProcessorCount;
+
+            PDF fileToReturn = null;
+            object returnLock = new object();
+            indexListKeys = 0;
+
+            List<string> keys = new List<string>();
+            Parallel.For(0, nbMaxKeys, po, (index, loop) =>
             {
+                int[] keyArray;
+                lock (this.key)
+                {
+                    keyArray = this.keyAvailable();
+                    //if (keysUsed % 676 == 1) Debug.WriteLine("[SERVICE] current keys used = " + keysUsed);
+                }
+
                 string newKey = "";
-                foreach (int i in this.key)
+                foreach (int i in keyArray)
                 {
                     newKey += Convert.ToChar(i);
                 }
-                // TODO: Implement Parallel Tasks
-
-                //Console.WriteLine("[SERVICE] Model - decryptFile: key = " + newKey);
-                //ThreadPool.SetMaxThreads(80000, 0);
-
-                //ThreadPool.QueueUserWorkItem(new WaitCallback(state => this.decryptTask(file, newKey)));
-
-                //Task task = new Task(() => decryptTask(file, newKey));
-                //task.Start();
-                //string decryptedContent = this.decryptContent(file.content, newKey);
-
-                //FormattedFile clonedFile = (FormattedFile)file.Clone();
-                //clonedFile.content = decryptedContent;
-
 
                 FormattedFile fileToVerify = this.decryptTask(file, newKey);
+                Interlocked.Increment(ref keysUsed);
 
-                // TODO: Maybe move this line to the end of decryptTask function
-                string resultVerification = this.verificationRequest(fileToVerify);
+                PDF resultVerification = this.verificationRequest(fileToVerify, newKey);
 
                 // TODO: Treat the verification response
-            }
+                if (resultVerification != null)
+                {
+                    loop.Stop();
+                    //sendEmail(newKey, resultVerification.filename);
+                    lock (returnLock)
+                    {
+                        fileToReturn = resultVerification;
+                    }
+                }
+            });
 
 
+            Debug.WriteLine("[SERVICE] Decryption - decryptFile: keysUsed = " + keysUsed);
             Debug.WriteLine("[SERVICE] Decryption - decryptFile: time = " + sw.ElapsedMilliseconds / 1000 + "." + sw.ElapsedMilliseconds % 1000 + " sec");
+            return fileToReturn;
         }
-
-        private StreamWriter newFile = File.CreateText("D:\\Projet\\A4-3 Dominante Dev\\test\\test-async.txt");
 
         private FormattedFile decryptTask(FormattedFile file, string newKey)
         {
-            // DEBUG: Le contenu n'est pas décripté pour permettre les tests
-            //string decryptedContent = this.decryptContent(file.content, newKey);
-            string decryptedContent = file.content;
+            string decryptedContent = this.decryptContent(file.content, newKey);
 
             // Create a copy so we send variations of the original file.
             FormattedFile clonedFile = (FormattedFile)file.Clone();
             clonedFile.content = decryptedContent;
-
-            //Console.WriteLine("[SERVICE] Model - decryptTask: key = " + newKey);
-            this.newFile.WriteLine(decryptedContent);
             return clonedFile;
         }
 
@@ -95,15 +100,17 @@ namespace WcfDecryptorService.Models
         {
             try
             {
-                string test = "";
-                for (int i = 0; i < input.Length; i++)
+                string result = "";
+                for (int index = 0; index < input.Length; index++)
                 {
-                    var tt = input[i];
-                    test += Convert.ToChar(Convert.ToByte(input[i]) ^ Convert.ToByte(key[i % key.Length]));
+                    uint byteChar = Convert.ToUInt32(input[index]);
+                    uint byteCompare = Convert.ToUInt32(key[index % key.Length]);
+                    result += Convert.ToChar(byteChar ^ byteCompare);
                 }
-                return test;
-            } catch
+                return result;
+            } catch (Exception e)
             {
+                Debug.WriteLine("[ERROR][SERVICE] decryptContent: " + e.Message);
                 return null;
                 //return (new Message("error", "0", new string[] { "FileCorrupted" })).serialize();
             }
@@ -123,6 +130,23 @@ namespace WcfDecryptorService.Models
             }
         }
 
+        private int indexListKeys = 0;
+
+        private int[] keyAvailable()
+        {
+            int index = 0;
+            if (this.key[index] < this.limit)
+            {
+                this.key[index]++;
+                return this.key;
+            }
+            if (Array.Exists(this.key, v => v < this.limit))
+            {
+                if (this.incNext(index)) return this.key;
+            }
+            return null;
+        }
+
         private bool incNext(int index)
         {
             if (this.key[index + 1] < limit)
@@ -133,17 +157,64 @@ namespace WcfDecryptorService.Models
             }
             else if (this.key[index + 1] == limit)
             {
-                this.key[index] = beginning;
-                incNext(index + 1);
-                return true;
+                if(incNext(index + 1))
+                {
+                    this.key[index] = beginning;
+                    return true;
+                }
             }
             return false;
         }
 
-        private string verificationRequest(FormattedFile file)
+        private PDF verificationRequest(FormattedFile file, string key)
         {
             // TODO: Connect to JEE
+            Message messageToSend = new Message("verificationFile", "0.1", new string[] { file.serialize() });
+
+
+
+            // Mock the response
+            PDF pdf = new PDF();
+            pdf.path = file.path;
+            pdf.filename = file.filename;
+            pdf.content = file.content;
+            pdf.validity = false;
+            pdf.pourcentage = 24.5;
+            pdf.tested = 200;
+            pdf.recognized = 49;
+            Message mockedResponse = new Message("verificationFile", "0.1", new string[] { pdf.serialize() });
+
+
+            PDF receivedFile = PDF.deserialize((string)mockedResponse.data[0]);
+            receivedFile.key = key;
+            if (receivedFile.validity)
+            {
+                return receivedFile;
+            }
+
             return null;
+        }
+
+        public void sendEmail(string key, string file)
+        {
+            Debug.WriteLine("[SERVICE] Decryption - sendEmail: sending email with key = " + key + ", file = " + file);
+            MailMessage mail = new MailMessage();
+            SmtpClient SmtpServer = new System.Net.Mail.SmtpClient("smtp.gmail.com");
+            mail.From = new MailAddress("groupeprojetdevnonmobile@gmail.com");
+            mail.To.Add(new MailAddress("alexis.hoyez@viacesi.fr"));
+            mail.To.Add(new MailAddress("maximilien.apprill@viacesi.fr"));
+            mail.Subject = "Réultat de décryptage obtenu";
+            mail.Body = "La clé est " + key + " pour le fichier : " + file;
+
+            //System.Net.Mail.Attachment attachment;
+            //attachment = new System.Net.Mail.Attachment("c:/textfile.txt");
+            //mail.Attachments.Add(attachment);
+
+            SmtpServer.Port = 587;
+            SmtpServer.Credentials = new System.Net.NetworkCredential("groupeprojetdevnonmobile@gmail.com", "ProjetDev123");
+            SmtpServer.EnableSsl = true;
+
+            SmtpServer.Send(mail);
         }
     }
 }
