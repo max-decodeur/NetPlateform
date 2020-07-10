@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://facade.validator.cesi.com/" targetNamespace="http://facade.validator.cesi.com/" version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="validatorOperation" type="tns:validatorOperation" />
+  <xs:element name="validatorOperationResponse" type="tns:validatorOperationResponse" />
+  <xs:complexType name="validatorOperation">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="msg" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="validatorOperationResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="message" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
