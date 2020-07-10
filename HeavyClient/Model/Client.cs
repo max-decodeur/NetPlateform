@@ -16,14 +16,10 @@ using iText.Kernel.Pdf.Canvas.Draw;
 
 namespace HeavyClient.Model
 {
-    public class Client
+    public sealed class Client
     {
-        private static Client instance = new Client();
+        public static readonly Client Instance = new Client();
         private Client() { }
-        public static Client Instance
-        {
-            get { return instance; }
-        }
         
         public MainWindow mainWindow;
 
@@ -40,6 +36,7 @@ namespace HeavyClient.Model
             int filesCorrupted = 0;
 
             FilesView view = null;
+            /* Update view's info on the main thread */
             mainWindow.Dispatcher.BeginInvoke(new Action(() =>
             {
                 view = (FilesView)mainWindow.DataContext;
@@ -51,8 +48,8 @@ namespace HeavyClient.Model
 
             Parallel.ForEach(files, po, (file, loop) =>
             {
-                List<string> contentList = new List<string>() { this.importFile(file) };
-                Message message = new Message("decrypt", "0.1", contentList.ToArray());
+                object[] contentList = new object[] { new FormattedFile(file) };
+                Message message = new Message("decrypt", "0.1", contentList);
                 string resultStrMessage = this.platformRequest(message);
 
                 // Get the result of the request and return it
@@ -69,14 +66,8 @@ namespace HeavyClient.Model
                     results.Add(pdfReceived);
                     Console.WriteLine("Model - loadFiles: results length = " + results.Count);
 
-                    if (resultMessage.statusOp)
-                    {
-                        filesDecrypted++;
-                    }
-                    else
-                    {
-                        filesFailed++;
-                    }
+                    if (resultMessage.statusOp) filesDecrypted++;
+                    else filesFailed++;
 
                     if (pdfReceived.validity)
                     {
@@ -85,7 +76,7 @@ namespace HeavyClient.Model
                     }
                 }
 
-                // Update view values
+                /* Update view's info on the main thread */
                 mainWindow.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     view.filesDecrypted = filesDecrypted;
@@ -98,12 +89,6 @@ namespace HeavyClient.Model
             return filesDecrypted + filesFailed + filesCorrupted == files.Length;
         }
 
-        private string importFile(string path)
-        {
-            FormattedFile file = new FormattedFile(path);
-            return file.serialize();
-        }
-
         private string platformRequest(Message message)
         {
             // Perform a request to the .NET platform
@@ -113,16 +98,14 @@ namespace HeavyClient.Model
             try
             {
                 DecryptorServiceClient service = new DecryptorServiceClient();
-                //service.ClientCredentials.ServiceCertificate.Authentication.CertificateValidationMode = X509CertificateValidationMode.None;
-                //service.ClientCredentials.UserName.UserName = this.username;
-                //service.ClientCredentials.UserName.Password = this.password;
+                service.ClientCredentials.UserName.UserName = this.username;
+                service.ClientCredentials.UserName.Password = this.password;
                 return service.m_service(message.serialize());
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 return null;
-                //return (new Message("error", "0", new string[] { "platformRequest" })).serialize();
             }
         }
 
@@ -130,7 +113,7 @@ namespace HeavyClient.Model
         {
             this.username = username;
             this.password = password;
-            string[] loginInformations = new string[2] { this.username, this.password };
+            object[] loginInformations = new object[] { this.username, this.password };
             
             Message message = new Message("login", "0.1", loginInformations);
             string resultStrMessage = this.platformRequest(message);
@@ -147,24 +130,6 @@ namespace HeavyClient.Model
 
             return resultMessage.statusOp;
         }
-
-        //public void processReceivedMessage(string strMessage)
-        //{
-        //    if (string.IsNullOrEmpty(strMessage)) return;
-
-        //    // Deserialize message
-        //    Message message = Message.deserialize(strMessage);
-        //    Console.WriteLine("Model - processReceivedMessage: received message.data length = " + message.data.Length);
-
-        //    // TODO: Also check the statusOp
-        //    if(message.operationName == "decrypt")
-        //    {
-        //        // Deserialize message.data
-        //        PDF file = PDF.deserialize(message.data[0].ToString());
-        //        // Create the new file
-        //        this.generateDecryptedFile(file);
-        //    }
-        //}
 
         private void generateFiles(PDF file)
         {
@@ -189,7 +154,7 @@ namespace HeavyClient.Model
             document.Add(new Paragraph("Clef utilisée : " + file.key));
             document.Add(new Paragraph("Nombre de mots testés : " + file.tested));
             document.Add(new Paragraph("Nombre de mots reconnu : " + file.recognized));
-            document.Add(new Paragraph("Taux de confiance : " + file.pourcentage + "%"));
+            document.Add(new Paragraph("Taux de confiance : " + (file.tested / file.nbWords * 100) + "%"));
 
             document.Close();
 

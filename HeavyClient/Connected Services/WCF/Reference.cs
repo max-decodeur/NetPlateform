@@ -17,12 +17,6 @@ namespace HeavyClient.WCF {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IDecryptorService/m_service", ReplyAction="http://tempuri.org/IDecryptorService/m_serviceResponse")]
         string m_service(string msg);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IDecryptorService/DecryptAsyncMethod", ReplyAction="http://tempuri.org/IDecryptorService/DecryptAsyncMethodResponse")]
-        string DecryptAsyncMethod(string msg);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IDecryptorService/java", ReplyAction="http://tempuri.org/IDecryptorService/javaResponse")]
-        string java(string msg);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -54,14 +48,6 @@ namespace HeavyClient.WCF {
         
         public string m_service(string msg) {
             return base.Channel.m_service(msg);
-        }
-        
-        public string DecryptAsyncMethod(string msg) {
-            return base.Channel.DecryptAsyncMethod(msg);
-        }
-        
-        public string java(string msg) {
-            return base.Channel.java(msg);
         }
     }
 }

@@ -45,30 +45,10 @@
   <wsdl:message name="IDecryptorService_m_service_OutputMessage">
     <wsdl:part name="parameters" element="tns:m_serviceResponse" />
   </wsdl:message>
-  <wsdl:message name="IDecryptorService_DecryptAsyncMethod_InputMessage">
-    <wsdl:part name="parameters" element="tns:DecryptAsyncMethod" />
-  </wsdl:message>
-  <wsdl:message name="IDecryptorService_DecryptAsyncMethod_OutputMessage">
-    <wsdl:part name="parameters" element="tns:DecryptAsyncMethodResponse" />
-  </wsdl:message>
-  <wsdl:message name="IDecryptorService_java_InputMessage">
-    <wsdl:part name="parameters" element="tns:java" />
-  </wsdl:message>
-  <wsdl:message name="IDecryptorService_java_OutputMessage">
-    <wsdl:part name="parameters" element="tns:javaResponse" />
-  </wsdl:message>
   <wsdl:portType name="IDecryptorService">
     <wsdl:operation name="m_service">
       <wsdl:input wsaw:Action="http://tempuri.org/IDecryptorService/m_service" message="tns:IDecryptorService_m_service_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IDecryptorService/m_serviceResponse" message="tns:IDecryptorService_m_service_OutputMessage" />
-    </wsdl:operation>
-    <wsdl:operation name="DecryptAsyncMethod">
-      <wsdl:input wsaw:Action="http://tempuri.org/IDecryptorService/DecryptAsyncMethod" message="tns:IDecryptorService_DecryptAsyncMethod_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/IDecryptorService/DecryptAsyncMethodResponse" message="tns:IDecryptorService_DecryptAsyncMethod_OutputMessage" />
-    </wsdl:operation>
-    <wsdl:operation name="java">
-      <wsdl:input wsaw:Action="http://tempuri.org/IDecryptorService/java" message="tns:IDecryptorService_java_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/IDecryptorService/javaResponse" message="tns:IDecryptorService_java_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="WcfDecryptorService" type="tns:IDecryptorService">
@@ -84,24 +64,6 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="DecryptAsyncMethod">
-      <soap12:operation soapAction="http://tempuri.org/IDecryptorService/DecryptAsyncMethod" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="java">
-      <soap12:operation soapAction="http://tempuri.org/IDecryptorService/java" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="DecryptorService">
     <wsdl:port name="WcfDecryptorService" binding="tns:WcfDecryptorService">
@@ -109,7 +71,7 @@
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:5052/IDecryptorService</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>DESKTOP-N2LEKCI\Maximilien</Upn>
+          <Upn>LAPTOP-NAQVJOFV\KLEIN Aurélien</Upn>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>

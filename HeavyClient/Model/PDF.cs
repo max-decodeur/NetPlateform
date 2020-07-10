@@ -9,7 +9,7 @@ namespace HeavyClient.Model
     public class PDF : FormattedFile
     {
         public bool validity;
-        public double pourcentage;
+        public int nbWords;
         public int tested;
         public int recognized;
         public string key;

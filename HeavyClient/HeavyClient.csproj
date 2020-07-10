@@ -190,9 +190,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="app.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="app.config" />
     <None Include="Connected Services\WCF\service.wsdl" />
     <None Include="Connected Services\WCF\service.xsd">
       <SubType>Designer</SubType>

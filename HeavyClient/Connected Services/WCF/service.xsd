@@ -14,32 +14,4 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="DecryptAsyncMethod">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="msg" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="DecryptAsyncMethodResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="DecryptAsyncMethodResult" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="java">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="msg" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="javaResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="javaResult" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
 </xs:schema>
